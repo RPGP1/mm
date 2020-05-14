@@ -33,8 +33,11 @@ set_target_properties(mm_cuda PROPERTIES
 # flags for executable file
 target_compile_options(mm_cuda PRIVATE
     $<$<CONFIG:Release>:-O3>
-    $<$<CONFIG:Debug>:-Og\ -g>
-    $<$<CONFIG:RelWithDebgInfo>:-O3\ -g>
+    $<$<AND:$<COMPILE_LANGUAGE:CXX>,$<CONFIG:Debug>>:-Og>
+    $<$<AND:$<COMPILE_LANGUAGE:CUDA>,$<CONFIG:Debug>>:-O0>
+    $<$<CONFIG:Debug>:-g>
+    $<$<CONFIG:RelWithDebgInfo>:-O3>
+    $<$<CONFIG:RelWithDebgInfo>:-g>
     )
 # flags for compile errors
 target_compile_options(mm_cuda PRIVATE
