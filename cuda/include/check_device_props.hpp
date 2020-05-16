@@ -7,6 +7,9 @@
 #include <string>
 
 
+namespace CudaMM
+{
+
 struct UnsupportedDevice : public std::runtime_error {
     explicit UnsupportedDevice(std::string const& message)
         : std::runtime_error{message}
@@ -15,3 +18,5 @@ struct UnsupportedDevice : public std::runtime_error {
 };
 
 void checkDeviceProps();
+
+}  // namespace CudaMM

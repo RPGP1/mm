@@ -1,18 +1,22 @@
 #include "check_device_props.hpp"
 
 #include "error.hpp"
+#include "gemm.hpp"
 
+
+namespace CudaMM
+{
 
 void checkDeviceProps()
 {
     int devices;
     CUDA_CHECK(cudaGetDeviceCount(&devices));
 
-    if (devices < 2) {
+    if (devices < Devices) {
         throw UnsupportedDevice("less than 2 devices available");
     }
 
-    for (auto device{0}; device < devices; ++device) {
+    for (auto device{0}; device < Devices; ++device) {
         cudaDeviceProp prop;
         CUDA_CHECK(cudaGetDeviceProperties(&prop, device));
 
@@ -22,3 +26,5 @@ void checkDeviceProps()
         }
     }
 }
+
+}  // namespace CudaMM
