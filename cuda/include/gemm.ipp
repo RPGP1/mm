@@ -162,18 +162,24 @@ void gemm_helper(
     std::array<size_t, sizeof...(Device) + 1> row_offsets{0};
     nop{(get<Device + 1>(row_offsets) = get<Device>(row_offsets) + get<Device>(data.data).lhs.rows)...};
 
-    std::array<std::thread, sizeof...(Device)> thread_pool{
-        std::thread{
-            kernel_gemm_wrapper<sizeof...(Device), Device,
-                decltype(get<Device>(data.data).lhs)::Rows,
-                decltype(get<Device>(data.data).lhs)::Cols,
-                decltype(get<Device>(data.data).rhs)::Cols>,
-            std::ref(get<Device>(data.data)),
-            lhs + get<Device + 1>(row_offsets) * get<Device>(data.data).lhs.cols,
-            rhs,
-            result + get<Device + 1>(row_offsets) * get<Device>(data.data).result.cols}...};
+    nop{(kernel_gemm_wrapper<sizeof...(Device), Device>(
+        std::ref(get<Device>(data.data)),
+        lhs + get<Device>(row_offsets) * get<Device>(data.data).lhs.cols,
+        rhs,
+        result + get<Device>(row_offsets) * get<Device>(data.data).result.cols), 0)...};
 
-    nop{(get<Device>(thread_pool).join(), 0)...};
+    // std::array<std::thread, sizeof...(Device)> thread_pool{
+    //     std::thread{
+    //         kernel_gemm_wrapper<sizeof...(Device), Device,
+    //             decltype(get<Device>(data.data).lhs)::Rows,
+    //             decltype(get<Device>(data.data).lhs)::Cols,
+    //             decltype(get<Device>(data.data).rhs)::Cols>,
+    //         std::ref(get<Device>(data.data)),
+    //         lhs + get<Device>(row_offsets) * get<Device>(data.data).lhs.cols,
+    //         rhs,
+    //         result + get<Device>(row_offsets) * get<Device>(data.data).result.cols}...};
+
+    // nop{(get<Device>(thread_pool).join(), 0)...};
 
     nop{(CUDA_CHECK(cudaSetDevice(Device)), CUDA_CHECK(cudaDeviceSynchronize()), 0)...};
 }

@@ -41,13 +41,13 @@ void gemm(
         stream));
 
 
-    // gemm_impl<<<{(problem.result.cols + BlockLength - 1) / BlockLength,
-    //                   (problem.result.rows + BlockLength - 1) / BlockLength},
-    //     {BlockLength, BlockLength}, 0, stream>>>(
+    gemm_impl<<<{(problem.result.cols + BlockLength - 1) / BlockLength,
+                      (problem.result.rows + BlockLength - 1) / BlockLength},
+        {BlockLength, BlockLength}, 0, stream>>>(
 
-    //     problem.lhs.data.get(), problem.rhs.data.get(), problem.result.data.get(),
-    //     problem.lhs.rows, problem.lhs.cols, problem.rhs.cols,
-    //     problem.lhs.pitch, problem.rhs.pitch, problem.result.pitch);
+        problem.lhs.data.get(), problem.rhs.data.get(), problem.result.data.get(),
+        problem.lhs.rows, problem.lhs.cols, problem.rhs.cols,
+        problem.lhs.pitch, problem.rhs.pitch, problem.result.pitch);
 
 
     CUDA_CHECK(cudaMemcpy2DAsync(
