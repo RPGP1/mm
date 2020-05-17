@@ -2,6 +2,7 @@
 #include "definition.hpp"
 #include "error.hpp"
 #include "gemm.hpp"
+#include "host_allocation.hpp"
 
 #include "mm/tester.hpp"
 
@@ -14,8 +15,10 @@
 
 #include <iomanip>
 
-constexpr uint32_t LhsRows{0}, LhsCols{0}, RhsCols{0};
-constexpr auto RhsRows = LhsCols, ResultRows = LhsRows, ResultCols = RhsCols;
+#include "size.hpp"
+extern template void CudaMM::gemm<LhsRows, LhsCols, RhsCols>(
+    CudaMM::DeviceData<LhsRows, LhsCols, RhsCols>&,
+    const Element* lhs, const Element* rhs, Element* result);
 
 
 int main(int argc, char* argv[])
@@ -52,7 +55,7 @@ try {
 
         auto timer = tester.timer();
 
-        CM::cudaGemm(device_data, lhs, rhs, result);
+        CM::gemm(device_data, lhs.get(), rhs.get(), result.get());
     }
 
     {

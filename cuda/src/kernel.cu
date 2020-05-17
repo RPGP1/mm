@@ -1,9 +1,19 @@
 #include "kernel.hpp"
 
+#include "gemm.hpp"
+#include "size.hpp"
+template void CudaMM::gemm<LhsRows, LhsCols, RhsCols>(
+    CudaMM::DeviceData<LhsRows, LhsCols, RhsCols>&,
+    const Element* lhs, const Element* rhs, Element* result);
+
+
 namespace CudaMM
 {
 
-__global__ void kernel_impl(__restrict__ const Element* lhs, __restrict__ const Element* rhs, __restrict__ Element* result,
+namespace Kernel
+{
+
+__global__ void gemm_impl(__restrict__ const Element* lhs, __restrict__ const Element* rhs, __restrict__ Element* result,
     const uint32_t lhs_rows, const uint32_t lhs_cols, const uint32_t rhs_cols,
     size_t lhs_pitch, size_t rhs_pitch, size_t result_pitch)
 {
@@ -31,14 +41,6 @@ __global__ void kernel_impl(__restrict__ const Element* lhs, __restrict__ const 
     result[result_row * result_pitch + result_col] = result_cache[threadIdx.y][threadIdx.x];
 }
 
-
-void kernel(
-    Element* lhs, Element* rhs, Element* result,
-    uint32_t lhs_rows, uint32_t lhs_cols, uint32_t rhs_cols,
-    size_t lhs_pitch, size_t rhs_pitch, size_t result_pitch,
-    dim3 blocks, dim3 threads, size_t shared_memory_size, cudaStream_t stream)
-{
-    kernel_impl<<<blocks, threads, shared_memory_size, stream>>>(lhs, rhs, result, lhs_rows, lhs_cols, rhs_cols, lhs_pitch, rhs_pitch, result_pitch);
-}
+}  // namespace Kernel
 
 }  // namespace CudaMM
