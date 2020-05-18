@@ -3,12 +3,6 @@ cmake_minimum_required(VERSION 3.12)
 
 project(MM_CUDA CXX CUDA)
 
-foreach(dir ${CMAKE_CXX_IMPLICIT_LINK_DIRECTORIES})
-    string(REGEX REPLACE "[0-9]+" "[0-9]+" pattern "${dir}")
-    list(FILTER CMAKE_CUDA_IMPLICIT_LINK_DIRECTORIES EXCLUDE REGEX "${pattern}")
-endforeach()
-
-
 file(GLOB_RECURSE MM_CUDA_SOURCES CONFIGURE_DEPENDS
     "src/*.cpp"
     "src/*.cu")
@@ -27,7 +21,7 @@ set_target_properties(mm_cuda PROPERTIES
     CUDA_SEPARABLE_COMPILATION ON
     CXX_STANDARD_REQUIRED ON
     CXX_STANDARD 17
-    LINKER_LANGUAGE CXX)
+    LINKER_LANGUAGE CUDA)
 
 
 # flags for executable file
