@@ -169,9 +169,9 @@ void gemm_helper(
                 decltype(get<Device>(data.data).lhs)::Cols,
                 decltype(get<Device>(data.data).rhs)::Cols>,
             std::ref(get<Device>(data.data)),
-            lhs + get<Device + 1>(row_offsets) * get<Device>(data.data).lhs.cols,
+            lhs + get<Device>(row_offsets) * get<Device>(data.data).lhs.cols,
             rhs,
-            result + get<Device + 1>(row_offsets) * get<Device>(data.data).result.cols}...};
+            result + get<Device>(row_offsets) * get<Device>(data.data).result.cols}...};
 
     nop{(get<Device>(thread_pool).join(), 0)...};
 

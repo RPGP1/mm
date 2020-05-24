@@ -38,6 +38,8 @@ target_compile_options(mm_cuda PRIVATE
     "-ftemplate-backtrace-limit=0"
     $<$<COMPILE_LANGUAGE:CXX>:-fmax-errors=10>
     $<$<COMPILE_LANGUAGE:CUDA>:SHELL:-Xcompiler="-fmax-errors=10">
+    $<$<COMPILE_LANGUAGE:CUDA>:SHELL:-Xptxas="-v">
+    $<$<COMPILE_LANGUAGE:CUDA>:-ftz=true>
     )
 # flags for warnings
 set(WARNING_FLAGS
