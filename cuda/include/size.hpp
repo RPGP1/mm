@@ -3,5 +3,5 @@
 #include <cstdint>
 
 
-constexpr uint32_t LhsRows{8192}, LhsCols{8192}, RhsCols{8192};
+constexpr uint32_t LhsRows{32768}, LhsCols{32768}, RhsCols{32768};
 constexpr auto RhsRows = LhsCols, ResultRows = LhsRows, ResultCols = RhsCols;
