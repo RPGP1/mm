@@ -24,6 +24,11 @@ void checkDeviceProps()
             throw UnsupportedDevice(std::string{"device["} + std::to_string(device) + "] (named \"" + prop.name + "\")"
                                     + " doesn't support unified addressing");
         }
+
+        if (prop.asyncEngineCount < 2) {
+            throw UnsupportedDevice(std::string{"device["} + std::to_string(device) + "] (named \"" + prop.name + "\")"
+                                    + " has less than 2 asyncronous engines");
+        }
     }
 }
 

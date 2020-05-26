@@ -17,7 +17,9 @@ Matrix2D<0, 0>::Matrix2D(CudaMM::Matrix2D<0, 0> const& mat)
 
 
 template <>
-__global__ void gemm_impl<LhsRows / Devices, LhsCols, RhsCols>(
+__global__
+__launch_bounds__(BlockSize, MinBlocksPerMultiprocessor)
+void gemm_impl<LhsRows / Devices, LhsCols, RhsCols>(
     ProblemData<LhsRows / Devices, LhsCols, RhsCols> problem,
     const Element* __restrict__ lhs, const Element* __restrict__ rhs, Element* __restrict__ result)
 {
@@ -200,30 +202,32 @@ void gemm<Devices, 0, LhsRows / Devices, LhsCols, RhsCols>(
     const Element* lhs, const Element* rhs, Element* result)
 {
     // for 128-byte transactions on loading from global memory
-    static_assert(BlockCols % WarpThreads == 0);
-    static_assert(Stride % WarpThreads == 0);
+    static_assert(BlockCols % WarpThreads == 0, "BlockCols % WarpThreads == 0");
+    static_assert(Stride % WarpThreads == 0, "Stride % WarpThreads == 0");
 
     // loading from global memory should be unrolled loops
-    static_assert((ThreadRows * Stride) % BlockColThreads == 0);
-    static_assert((ThreadCols * Stride) % BlockRowThreads == 0);
+    static_assert((ThreadRows * Stride) % BlockColThreads == 0, "(ThreadRows * Stride) % BlockColThreads == 0");
+    static_assert((ThreadCols * Stride) % BlockRowThreads == 0, "(ThreadCols * Stride) % BlockRowThreads == 0");
 
     // block size should be a multiple of warp size
-    static_assert(BlockSize % WarpThreads == 0);
+    static_assert(BlockSize % WarpThreads == 0, "BlockSize % WarpThreads == 0");
 
     // result stored in shared memory should be a part
-    static_assert(ThreadSharedRows <= ThreadRows);
-    static_assert(ThreadSharedCols <= ThreadCols);
-    static_assert(ThreadSharedRows != 0 || ThreadSharedCols == 0);
-    static_assert(ThreadSharedRows == 0 || ThreadSharedCols != 0);
+    static_assert(ThreadSharedRows <= ThreadRows, "ThreadSharedRows <= ThreadRows");
+    static_assert(ThreadSharedCols <= ThreadCols, "ThreadSharedCols <= ThreadCols");
+    static_assert(ThreadSharedRows != 0 || ThreadSharedCols == 0, "ThreadSharedRows != 0 || ThreadSharedCols == 0");
+    static_assert(ThreadSharedRows == 0 || ThreadSharedCols != 0, "ThreadSharedRows == 0 || ThreadSharedCols != 0");
 
     // restriction of hardware
-    static_assert(BlockSize <= 1024);
-    static_assert(sizeof(Element) * SharedSize <= 0x18000);
+    static_assert(BlockSize <= 1024, "BlockSize <= 1024");
+    static_assert(MinBlocksPerMultiprocessor <= 32, "MinBlocksPerMultiprocessor <= 32");
+    static_assert(BlockSize * MinBlocksPerMultiprocessor <= 2048, "BlockSize * MinBlocksPerMultiprocessor <= 2048");
+    static_assert(sizeof(Element) * SharedSize * MinBlocksPerMultiprocessor <= 0x18000, "sizeof(Element) * SharedSize * MinBlocksPerMultiprocessor <= 0x18000");
 
-    static_assert(problem.result.rows % BlockRows == 0);
-    static_assert(problem.result.cols % BlockCols == 0);
-    static_assert(problem.lhs.cols % MaxAccumulation == 0);
-    static_assert(MaxAccumulation % Stride == 0);
+    static_assert(problem.result.rows % BlockRows == 0, "problem.result.rows % BlockRows == 0");
+    static_assert(problem.result.cols % BlockCols == 0, "problem.result.cols % BlockCols == 0");
+    static_assert(problem.lhs.cols % MaxAccumulation == 0, "problem.lhs.cols % MaxAccumulation == 0");
+    static_assert(MaxAccumulation % Stride == 0, "MaxAccumulation % Stride == 0");
 
 
     CUDA_CHECK(cudaMemset2DAsync(

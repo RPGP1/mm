@@ -31,21 +31,23 @@ __host__ __device__ constexpr uint32_t gcd(uint32_t num1, uint32_t num2)
 constexpr uint32_t WarpThreads = 32;
 
 // each thread is assigned (ThreadRows x ThreadCols) elements in result matrix
-constexpr uint32_t ThreadRows = 4, ThreadCols = 4;
+constexpr uint32_t ThreadRows = 13, ThreadCols = 16;
 // (ThreadSharedRows x ThreadSharedCols) of (ThreadRows x ThreadCols) are stored in shared memory
 constexpr uint32_t ThreadSharedRows = 0, ThreadSharedCols = 0;
 
 // shared memory is allocated for each thread to do the sum of the products (Stride) times
-constexpr uint32_t Stride = 32 * 2;
+constexpr uint32_t Stride = 32;
 
 // each block consists of (BlockRowThreads x BlockColThreads) threads
-constexpr uint32_t BlockRowThreads = Stride * ThreadCols / 16, BlockColThreads = Stride * ThreadRows / 8,
+constexpr uint32_t BlockRowThreads = 16, BlockColThreads = 16,
                    BlockSize = BlockRowThreads * BlockColThreads;
 
 constexpr uint32_t BlockRows = BlockRowThreads * ThreadRows, BlockCols = BlockColThreads * ThreadCols;
 
 // each thread can sum the products up to (MaxAccumulation) times
 constexpr uint32_t MaxAccumulation = 4096;
+
+constexpr uint32_t MinBlocksPerMultiprocessor = 1;
 
 
 constexpr uint32_t LhsSharedRows = BlockRows,
