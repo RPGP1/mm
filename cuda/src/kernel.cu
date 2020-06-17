@@ -27,9 +27,9 @@ void gemm_impl<LhsRows / Devices, LhsCols, RhsCols>(
     // Element lhs_shared[LhsSharedRows][LhsSharedCols];
     // Element rhs_shared[RhsSharedRows][RhsSharedCols];
     // Element result_shared[ResultSharedRows][ResultSharedCols];
-    Element(*lhs_shared)[LhsSharedCols] = reinterpret_cast<Element(*)[LhsSharedCols]>(shared_memory);
-    Element(*rhs_shared)[RhsSharedCols] = reinterpret_cast<Element(*)[RhsSharedCols]>(lhs_shared + LhsSharedRows);
-    Element(*result_shared)[ResultSharedCols] = reinterpret_cast<Element(*)[ResultSharedCols]>(rhs_shared + RhsSharedRows);
+    Element(*__restrict__ lhs_shared)[LhsSharedCols] = reinterpret_cast<Element(*)[LhsSharedCols]>(shared_memory);
+    Element(*__restrict__ rhs_shared)[RhsSharedCols] = reinterpret_cast<Element(*)[RhsSharedCols]>(lhs_shared + LhsSharedRows);
+    Element(*__restrict__ result_shared)[ResultSharedCols] = reinterpret_cast<Element(*)[ResultSharedCols]>(rhs_shared + RhsSharedRows);
 
     Element result_reg[ThreadRows][ThreadCols] = {};
 
